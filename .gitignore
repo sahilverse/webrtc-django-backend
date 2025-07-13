@@ -164,7 +164,7 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-./data
+data/
 db-compose.yml
 
 # PyCharm
