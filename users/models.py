@@ -8,7 +8,11 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, null=True)
-    date_joined = models.DateTimeField(auto_now_add=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    is_online = models.BooleanField(default=False)
+    last_seen = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     
     objects = CustomUserManager()
@@ -22,10 +26,7 @@ class User(AbstractUser):
     class Meta:
         verbose_name = "User"
         verbose_name_plural = "Users"
-        ordering = ['-date_joined']
-    
-    
-   
+        ordering = ['-created_at']
 
 
 

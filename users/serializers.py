@@ -7,12 +7,10 @@ from .models import User
 class UserResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'date_joined']
-        read_only_fields = ['id', 'date_joined']
-        
-        
-        
-        
+        fields = ['id', 'email', 'name', 'profile_image', 'is_online', 'last_seen', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
 
