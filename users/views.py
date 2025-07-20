@@ -1,5 +1,3 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework import status, generics
 
 from rest_framework.permissions import AllowAny
@@ -7,17 +5,25 @@ from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth import authenticate
 from django.db import transaction
 
 from myproject.responses import api_response
+from django.contrib.auth import get_user_model
+
 
 from .serializers import (UserCreateSerializer, UserLoginSerializer, UserResponseSerializer)
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import UserFilter
+
+
+User = get_user_model()
 class RegisterUserView(generics.CreateAPIView):
    permission_classes = [AllowAny]
    serializer_class = UserCreateSerializer
@@ -123,4 +129,88 @@ class UserLoginView(TokenObtainPairView):
                 error_message="Internal Server Error",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
-               
+
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    serializer_class = UserResponseSerializer
+
+    
+    def get_object(self):
+        return self.request.user
+    
+    @swagger_auto_schema(
+        operation_description="Get user profile.",
+        responses={
+            200: openapi.Response(description="User details retrieved successfully."),
+            404: openapi.Response(description="User not found"),
+            500: openapi.Response(description="Internal server error"),
+        },
+        tags=["User"],
+    )
+    def get(self, request, *args, **kwargs):
+        try:
+            user = self.get_object()
+            serializer = self.serializer_class(user)
+            return api_response(
+                is_success=True,
+                status_code=status.HTTP_200_OK,
+                result=serializer.data
+            )
+        except User.DoesNotExist:
+            return api_response(
+                is_success=False,
+                error_message="User not found.",
+                status_code=status.HTTP_404_NOT_FOUND,
+            )
+        except Exception as e:
+            return api_response(
+                is_success=False,
+                error_message="Internal Server Error",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+            
+            
+            
+            
+class UserSearchView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UserResponseSerializer
+    
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+    
+    
+    @swagger_auto_schema(
+        operation_description="Search users by name.",
+        manual_parameters=[
+            openapi.Parameter(
+                'name', openapi.IN_QUERY,
+                description="Search by partial or full name",
+                type=openapi.TYPE_STRING
+            )
+        ],
+        responses={
+            200: openapi.Response(description="Users retrieved successfully."),
+            500: openapi.Response(description="Internal server error"),
+        },
+        tags=["User"],
+    )
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            queryset = self.filter_queryset(self.get_queryset())
+            serializer = self.get_serializer(queryset, many=True)
+            return api_response(
+                is_success=True,
+                status_code=status.HTTP_200_OK,
+                result=serializer.data
+            )
+        except Exception as e:
+            return api_response(
+                is_success=False,
+                error_message="Internal Server Error",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )

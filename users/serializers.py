@@ -5,6 +5,8 @@ from .models import User
 
 
 class UserResponseSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(allow_null=True, required=False)
+    
     class Meta:
         model = User
         fields = ['id', 'email', 'name', 'profile_image', 'is_online', 'last_seen', 'created_at', 'updated_at']
