@@ -10,7 +10,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=255, blank=True, null=True)
     profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     is_online = models.BooleanField(default=False)
-    last_seen = models.DateTimeField(auto_now=True)
+    last_seen = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
