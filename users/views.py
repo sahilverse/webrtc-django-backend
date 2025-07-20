@@ -131,7 +131,7 @@ class UserLoginView(TokenObtainPairView):
             )
 
 
-class UserProfileView(generics.RetrieveUpdateAPIView):
+class UserProfileView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
     serializer_class = UserResponseSerializer
