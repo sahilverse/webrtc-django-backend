@@ -8,7 +8,11 @@ from io import BytesIO
 
 from .managers import CustomUserManager
 
+import uuid
+
 class User(AbstractUser):
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     username = None
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=255, blank=True, null=True)
