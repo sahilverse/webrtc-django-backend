@@ -33,6 +33,9 @@ class User(AbstractUser):
         verbose_name_plural = "Users"
         ordering = ['-created_at']
         
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
     def save(self, *args, **kwargs):
         if self.profile_image:
             img = Image.open(self.profile_image)
