@@ -5,7 +5,6 @@ from .chat import Chat
 
 import uuid
 
-
 class ChatMember(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     chat = models.ForeignKey(Chat, related_name='members', on_delete=models.CASCADE)

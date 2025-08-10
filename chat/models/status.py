@@ -6,7 +6,6 @@ from .message import Message
 
 import uuid
 
-
 class MessageStatusEntry(models.Model):
     class Status(models.TextChoices):
         SENT = 'SENT', _('Sent')
