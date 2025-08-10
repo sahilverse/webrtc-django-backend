@@ -20,7 +20,9 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import UserFilter
+from rest_framework import filters
+
+from loguru import logger
 
 
 User = get_user_model()
@@ -136,7 +138,6 @@ class UserProfileView(generics.RetrieveAPIView):
     authentication_classes = [JWTAuthentication]
     serializer_class = UserResponseSerializer
 
-    
     def get_object(self):
         return self.request.user
     
@@ -173,42 +174,58 @@ class UserProfileView(generics.RetrieveAPIView):
             
             
             
-            
 class UserSearchView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserResponseSerializer
     
-    queryset = User.objects.all()
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = UserFilter
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    search_fields = ['first_name', 'last_name', 'email']
+    filterset_fields = ['is_online', 'last_seen', 'is_active']
     
-    
+    def get_queryset(self):
+        return User.objects.all()
+
     @swagger_auto_schema(
-        operation_description="Search users by name.",
+        operation_description="Search users by first name, last name, or email (using 'search'). Filter by is_online, last_seen, and is_active.",
         manual_parameters=[
             openapi.Parameter(
-                'name', openapi.IN_QUERY,
-                description="Search by partial or full name",
+                'search', openapi.IN_QUERY,
+                description="Search by first name, last name, or email (partial matches allowed)",
                 type=openapi.TYPE_STRING
-            )
+            ),
+            openapi.Parameter(
+                'is_online', openapi.IN_QUERY,
+                description="Filter users by online status (true/false)",
+                type=openapi.TYPE_BOOLEAN
+            ),
+            openapi.Parameter(
+                'last_seen', openapi.IN_QUERY,
+                description="Filter users by last seen timestamp (ISO 8601 format)",
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_DATETIME
+            ),
+            openapi.Parameter(
+                'is_active', openapi.IN_QUERY,
+                description="Filter users by active status (true/false)",
+                type=openapi.TYPE_BOOLEAN
+            ),
         ],
-        responses={
-            200: openapi.Response(description="Users retrieved successfully."),
-            500: openapi.Response(description="Internal server error"),
-        },
+        responses={200: openapi.Response(description="Users retrieved successfully.")},
         tags=["User"],
     )
-    
     def get(self, request, *args, **kwargs):
         try:
-            queryset = self.filter_queryset(self.get_queryset())
-            serializer = self.get_serializer(queryset, many=True)
+            response = super().get(request, *args, **kwargs)
             return api_response(
                 is_success=True,
                 status_code=status.HTTP_200_OK,
-                result=serializer.data
+                result={
+                    "message": "Users retrieved successfully.",
+                    "data": response.data
+                }
             )
         except Exception as e:
+            logger.error(f"Error in UserSearchView: {str(e)}") 
             return api_response(
                 is_success=False,
                 error_message="Internal Server Error",
