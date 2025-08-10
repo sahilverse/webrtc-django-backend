@@ -24,10 +24,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
         
         if not await self.chat_exists(self.chat_id):
+            logger.error(f"Chat {self.chat_id} does not exist.")
             await self.close()
             return
 
         if not await self.is_user_member(self.chat_id, self.user.id):
+            logger.error(f"User is not a member of chat {self.chat_id}.")
             await self.close()
             return
 
@@ -35,8 +37,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.group_name, 
             self.channel_name
         )
-        
-        logger.info(f"User {self.user.first_name + " " + self.user.last_name} connected to chat {self.chat_id}.")
+
+        logger.info(f"User {self.user.get_full_name()} connected to chat {self.chat_id}.")
         await self.accept()
 
 
@@ -47,10 +49,31 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
 
-        logger.info(f"User {self.user.first_name + " " + self.user.last_name} disconnected from chat {self.chat_id}.")
+        logger.info(f"User {self.user.get_full_name()} disconnected from chat {self.chat_id}.")
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
         
-    
-    
+        msg_type = data.get("type")
+        
+        match msg_type:
+            case "typing":
+                is_typing = data.get("is_typing", False)
+                if self.channel_layer is not None:
+                    await self.channel_layer.group_send(
+                        self.group_name,
+                        {
+                            "type": "typing_status",
+                            "user_id": self.user.id,
+                            "username": self.user.get_full_name(),
+                            "is_typing": is_typing,
+                        }
+                    )
+            case "message":
+                pass
+            case _:
+                logger.warning(f"Unknown message type: {msg_type} from user {self.user.id}")
+
     @database_sync_to_async
     def chat_exists(self, chat_id):
         return Chat.objects.filter(id=chat_id).exists()
