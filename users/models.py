@@ -34,28 +34,22 @@ class User(AbstractUser):
         ordering = ['-created_at']
         
     def save(self, *args, **kwargs):
-        super.save(*args, **kwargs)
-        
         if self.profile_image:
             img = Image.open(self.profile_image)
-            
+
             max_size = (320, 320)
-            
             if img.height > 320 or img.width > 320:
                 img.thumbnail(max_size)
-                
+
                 img_io = BytesIO()
                 img_format = img.format if img.format else 'JPEG'
                 img.save(img_io, format=img_format, quality=85)
-                
-                
-                self.profile_image.save(
-                    self.profile_image.name,
-                    ContentFile(img_io.getvalue()),
-                    save=False
-                )
-                super().save(update_fields=['profile_image'])
-        
+
+               
+                self.profile_image = ContentFile(img_io.getvalue(), self.profile_image.name)
+
+        super().save(*args, **kwargs)
+            
 
 
 
