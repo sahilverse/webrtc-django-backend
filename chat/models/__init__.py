@@ -1,7 +1,17 @@
-from .chat import *
-from .chat_member import *
-from .message import *
-from .message_reaction import *
-from .status import *
-from .call import *
-from .call_participant import *
+from .chat import Chat
+from .chat_member import ChatMember
+from .message import Message
+from .message_reaction import MessageReaction
+from .status import MessageStatusEntry
+from .call import Call
+from .call_participant import CallParticipant
+
+__all__ = [
+    "Chat",
+    "ChatMember",
+    "Message",
+    "MessageReaction",
+    "MessageStatusEntry",
+    "Call",
+    "CallParticipant",
+]
