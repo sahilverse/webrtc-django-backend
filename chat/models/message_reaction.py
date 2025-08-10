@@ -16,13 +16,12 @@ class MessageReaction(models.Model):
         SAD = 'sad', _('Sad')
         ANGRY = 'angry', _('Angry')
 
-
-    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='reactions')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reactions')
     type = models.CharField(max_length=50, choices=ReactionType.choices)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = ('message', 'user')
