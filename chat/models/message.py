@@ -8,15 +8,15 @@ import uuid
 
 class Message(models.Model):
     class MessageType(models.TextChoices):
-        TEXT = 'TEXT', _('Text')
-        EMOJI = 'EMOJI', _('Emoji')
-        PHOTO = 'PHOTO', _('Photo')
-        VIDEO = 'VIDEO', _('Video')
-        AUDIO = 'AUDIO', _('Audio')
+        TEXT = 'text', _('Text')
+        EMOJI = 'emoji', _('Emoji')
+        PHOTO = 'photo', _('Photo')
+        VIDEO = 'video', _('Video')
+        AUDIO = 'audio', _('Audio')
 
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    type = models.CharField(max_length=10, choices=MessageType.choices)
+    type = models.CharField(max_length=10, choices=MessageType.choices, default=MessageType.TEXT)
     content = models.TextField(null=True, blank=True)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='messages')
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_sent')

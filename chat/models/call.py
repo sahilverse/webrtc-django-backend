@@ -9,13 +9,13 @@ import uuid
 class Call(models.Model):
 
     class CallType(models.TextChoices):
-        AUDIO = 'AUDIO', _('Audio')
-        VIDEO = 'VIDEO', _('Video')
+        AUDIO = 'audio', _('Audio')
+        VIDEO = 'video', _('Video')
 
     class CallStatus(models.TextChoices):
-        ONGOING = 'ONGOING', _('Ongoing')
-        COMPLETED = 'COMPLETED', _('Completed')
-        MISSED = 'MISSED', _('Missed')
+        ONGOING = 'ongoing', _('Ongoing')
+        COMPLETED = 'completed', _('Completed')
+        MISSED = 'missed', _('Missed')
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     chat = models.ForeignKey(Chat, on_delete=models.CASCADE, related_name='calls')

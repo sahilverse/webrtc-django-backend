@@ -8,10 +8,10 @@ import uuid
 
 class MessageStatusEntry(models.Model):
     class Status(models.TextChoices):
-        SENT = 'SENT', _('Sent')
-        DELIVERED = 'DELIVERED', _('Delivered')
-        READ = 'READ', _('Read')
-   
+        SENT = 'sent', _('Sent')
+        DELIVERED = 'delivered', _('Delivered')
+        READ = 'read', _('Read')
+
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='statuses')

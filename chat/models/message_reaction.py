@@ -9,12 +9,12 @@ import uuid
 
 class MessageReaction(models.Model):
     class ReactionType(models.TextChoices):
-        LIKE = 'LIKE', _('Like')
-        LOVE = 'LOVE', _('Love')
-        LAUGH = 'LAUGH', _('Laugh')
-        WOW = 'WOW', _('Wow')
-        SAD = 'SAD', _('Sad')
-        ANGRY = 'ANGRY', _('Angry')
+        LIKE = 'like', _('Like')
+        LOVE = 'love', _('Love')
+        LAUGH = 'laugh', _('Laugh')
+        WOW = 'wow', _('Wow')
+        SAD = 'sad', _('Sad')
+        ANGRY = 'angry', _('Angry')
 
 
     
