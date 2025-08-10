@@ -9,7 +9,7 @@ class UserResponseSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['id', 'email', 'name', 'profile_image', 'is_online', 'last_seen', 'created_at', 'updated_at']
+        fields = ['id', 'email', 'first_name', 'last_name', 'profile_image', 'is_online', 'last_seen', 'created_at', 'updated_at']
         read_only_fields = ['id','last_seen' ,'created_at', 'updated_at']
 
 
@@ -18,7 +18,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'password']
+        fields = ['email', 'first_name', 'last_name', 'password']
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -30,18 +30,26 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if len(value) < 8:
             raise serializers.ValidationError("Password must be at least 8 characters long.")
         return value
-    
-    def validate_name(self, value):
+
+    def validate_first_name(self, value):
         if not value:
-            raise serializers.ValidationError("Name cannot be empty.")
+            raise serializers.ValidationError("First name cannot be empty.")
         elif len(value) < 2:
-            raise serializers.ValidationError("Name must be at least 2 characters long.")
+            raise serializers.ValidationError("First name must be at least 2 characters long.")
+        return value
+
+    def validate_last_name(self, value):
+        if not value:
+            raise serializers.ValidationError("Last name cannot be empty.")
+        elif len(value) < 2:
+            raise serializers.ValidationError("Last name must be at least 2 characters long.")
         return value
     
     def create(self, validated_data):
         user = User(
             email=validated_data['email'],
-            name=validated_data.get('name', '')
+            first_name=validated_data.get('first_name', ''),
+            last_name=validated_data.get('last_name', '')
         )
         user.set_password(validated_data['password'])
         user.save()
